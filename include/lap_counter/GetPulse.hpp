@@ -1,14 +1,15 @@
 #ifndef GET_PULSE_HPP_
 #define GET_PULSE_HPP_
 
-#include <chrono>
+#pragma region 'LIBS'
 #include <memory>
 
-#include "constants.hpp"
+#include "lap_counter/constants.hpp"
+#include "lart_common/lart_common.h"
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/int32.hpp"
 #include "lart_msgs/msg/dynamics.hpp"
 #include "lap_counter/DataHolder.hpp"
+#pragma endregion
 
 class GetPulse : public rclcpp::Node
 {
@@ -22,6 +23,7 @@ private:
 
     // methods
     void topicCallback(const PULSE_SUBSCRIBER_TYPE::SharedPtr msg) const;
+    mutable u_int8_t last_pulse;
 };
 
 #endif /* GET_PULSE_HPP_ */
