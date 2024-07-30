@@ -1,7 +1,6 @@
 #ifndef GET_PULSE_HPP_
 #define GET_PULSE_HPP_
 
-#pragma region 'LIBS'
 #include <memory>
 
 #include "lap_counter/constants.hpp"
@@ -9,7 +8,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "lart_msgs/msg/dynamics.hpp"
 #include "lap_counter/DataHolder.hpp"
-#pragma endregion
 
 class GetPulse : public rclcpp::Node
 {

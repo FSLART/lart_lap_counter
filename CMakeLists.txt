@@ -16,6 +16,7 @@ set(SRC_FILES
     src/DataHolder.cpp
     src/GetCones.cpp
     src/GetPulse.cpp
+    src/GetMission.cpp
     src/LapCounter.cpp
     src/Launcher.cpp
 )

@@ -3,7 +3,6 @@
 
 using namespace std::placeholders;
 
-#pragma region 'PUBLIC'
 
 GetPulse::GetPulse(std::shared_ptr<DataHolder> data) : Node(PULSE_SUBSCRIBER_NAME), data_(data)
 {
@@ -12,10 +11,6 @@ GetPulse::GetPulse(std::shared_ptr<DataHolder> data) : Node(PULSE_SUBSCRIBER_NAM
         PULSE_TOPIC_NAME, 10, std::bind(&GetPulse::topicCallback, this, _1));
 }
 
-#pragma endregion
-
-
-#pragma region 'PRIVATE'
 
 void GetPulse::topicCallback(const PULSE_SUBSCRIBER_TYPE::SharedPtr msg) const
 {
@@ -25,7 +20,7 @@ void GetPulse::topicCallback(const PULSE_SUBSCRIBER_TYPE::SharedPtr msg) const
     
     if (distance_old >= distance)
     {
-        distance = PULSE_DIFF_TO_DISTANCE_M((average_front_wheels_pulse + PULSES_PER_REVOLUTION - last_pulse)) + distance_old;
+        distance = PULSE_DIFF_TO_DISTANCE_M((average_front_wheels_pulse + WHEEL_SPROCKET_PULSES_PER_REVOLUTION - last_pulse)) + distance_old;
     }
 
     last_pulse = average_front_wheels_pulse;

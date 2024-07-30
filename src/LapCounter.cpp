@@ -3,24 +3,21 @@
 
 using namespace std::chrono_literals;
 
-#pragma region 'PUBLIC'
 
 LapCounter::LapCounter(std::shared_ptr<DataHolder> data)
-    : Node("count_laps"), data_(data), last_distance_known{0.0, 0.0, 0.0, 0.0}
+    : Node("count_laps"), data_(data), last_distance_known{0.0, 0.0, 0.0, 0.0}, distance_after_lap(-1)
 {
     // ros args
-    this->declare_parameter("lap_min", rclcpp::ParameterValue(DEFAULT_DISTANCES[0]));
-    this->declare_parameter("lap_max", rclcpp::ParameterValue(DEFAULT_DISTANCES[1]));
-    this->declare_parameter("lap_track_width", rclcpp::ParameterValue(TRACK_WIDTH));
+    this->declare_parameter("lap_min", rclcpp::ParameterValue((float)DEFAULT_DISTANCES_MIN));
+    this->declare_parameter("lap_max", rclcpp::ParameterValue((float)DEFAULT_DISTANCES_MAX));
+    this->declare_parameter("lap_track_width", rclcpp::ParameterValue((float)TRACK_WIDTH));
 
-    laps.data = 0;
+    laps = -1;
     publisher_ = this->create_publisher<LAP_PUBLISHER_TYPE>(LAP_PUBLISHER_NAME, 5);
     timer_ = this->create_wall_timer(PUBLISHER_TIMER, std::bind(&LapCounter::topicCallback, this));
 }
 
-#pragma endregion
 
-#pragma region 'PRIVATE'
 
 bool compare_cone(const cone_data &first, const cone_data &second)
 {
@@ -29,44 +26,35 @@ bool compare_cone(const cone_data &first, const cone_data &second)
 
 void LapCounter::topicCallback()
 {
+
     std::list<cone_data> cone_list_data = data_->getConeList();
+    if (distance_after_lap > -1)
+    {
+        float delta_distance = data_->getDistance() - distance_after_lap;
+        if (delta_distance > SAFE_LAP_DISTANCE)
+        {
+            distance_after_lap = -1;
+        }
+        else
+        {
+            distance_after_lap += delta_distance;
+            goto callback_end;
+        }
+    }
+
+    // Empty list
     if (cone_list_data.empty())
     {
-        if (distance_after_lap > -1)
-        {
-            float delta_distance = data_->getDistance() - distance_after_lap;
-            if (delta_distance > SAFE_LAP_DISTANCE)
-            {
-                distance_after_lap = -1;
-            }
-            else
-            {
-                distance_after_lap += delta_distance;
-            }
-        }
-
         goto callback_end;
     }
 
-    switch (data_->getMissionType())
-    {
-        case  lart_msgs::msg::Mission::ACCELERATION :
-            this->set_parameter(rclcpp::Parameter("lap_min", MISSION_1_DISTANCE[0]));
-            this->set_parameter(rclcpp::Parameter("lap_min", MISSION_1_DISTANCE[1]));
-            break;
-        case  lart_msgs::msg::Mission::SKIDPAD :
-            this->set_parameter(rclcpp::Parameter("lap_min", MISSION_2_DISTANCE[0]));
-            this->set_parameter(rclcpp::Parameter("lap_min", MISSION_2_DISTANCE[1]));
-            break;
-        case  lart_msgs::msg::Mission::TRACKDRIVE :
-            this->set_parameter(rclcpp::Parameter("lap_min", MISSION_3_DISTANCE[0]));
-            this->set_parameter(rclcpp::Parameter("lap_min", MISSION_3_DISTANCE[1]));
-    }
-
-    if (data_->getDistance() < this->get_parameter("lap_min").as_double() * (laps.data + 1) || data_->getDistance() > this->get_parameter("lap_max").as_double() * (laps.data + 1))
+    // Verify distance
+    if (data_->getDistance() < this->get_parameter("lap_min").as_double() * (laps + 1) || data_->getDistance() > this->get_parameter("lap_max").as_double() * (laps + 1))
     {
         goto callback_end;
     }
+
+    RCLCPP_INFO(this->get_logger(), "distance good");
 
     if (this->cone_list.empty())
     {
@@ -76,7 +64,6 @@ void LapCounter::topicCallback()
         {
             this->cone_list.push_back(*iterator);
         }
-        goto callback_end;
     }
     else
     {
@@ -98,6 +85,7 @@ void LapCounter::topicCallback()
         float track_width = (float)this->get_parameter("lap_track_width").as_double();
         for (auto &cone : this->cone_list)
         {
+            
             if (std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) < track_width)
             {
                 in_range++;
@@ -112,17 +100,20 @@ void LapCounter::topicCallback()
             }
         }
 
-        if (positive && negative && in_range > 1 && distance_after_lap == -1)
+        if (positive && negative && in_range > 1 && distance_after_lap == -1) 
         {
             distance_after_lap = data_->getDistance();
-            laps.data++;
+            cone_list_data.clear();
+            data_->setConeList(cone_list_data);
+            laps++;
         }
     }
 
-    cone_list_data.clear();
-    data_->setConeList(cone_list_data);
-
 callback_end:
+    auto laps = std_msgs::msg::UInt16();
+    
+    laps.data = this->laps;
+
     publisher_->publish(laps);
 }
 
@@ -134,4 +125,6 @@ bool LapCounter::isSameCone(const cone_data &old_cone, const cone_data &new_cone
     return std::fabs(deltaConeDistance - this->last_distance_known[index]) < ACCEPTABLE_CONE_DISTANCE_ERROR;
 }
 
-#pragma endregion
+void LapCounter::resetLapCount(){
+    this->laps = -1;
+}

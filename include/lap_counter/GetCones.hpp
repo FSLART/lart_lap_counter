@@ -1,7 +1,6 @@
 #ifndef GET_CONES_HPP_
 #define GET_CONES_HPP_
 
-#pragma region 'LIBS'
 #include <memory>
 
 #include "lap_counter/constants.hpp"
@@ -11,7 +10,6 @@
 #include "lart_msgs/msg/cone.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "lap_counter/DataHolder.hpp"
-#pragma endregion
 
 class GetCones : public rclcpp::Node
 {

@@ -4,7 +4,6 @@
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
-#pragma region 'PUBLIC'
 
 GetCones::GetCones(std::shared_ptr<DataHolder> data) : Node(CONE_SUBSCRIBER_NAME), data_(data)
 {
@@ -13,10 +12,6 @@ GetCones::GetCones(std::shared_ptr<DataHolder> data) : Node(CONE_SUBSCRIBER_NAME
         CONE_TOPIC_NAME, 10, std::bind(&GetCones::topicCallback, this, _1));
 }
 
-#pragma endregion
-
-
-#pragma region 'PRIVATE'
 
 void GetCones::topicCallback(const CONE_SUBSCRIBER_TYPE::SharedPtr msg) const
 {
@@ -41,5 +36,3 @@ void GetCones::topicCallback(const CONE_SUBSCRIBER_TYPE::SharedPtr msg) const
     
     data_->setConeList(std::move(list));
 }
-
-#pragma endregion

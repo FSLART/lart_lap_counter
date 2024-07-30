@@ -1,7 +1,6 @@
 #ifndef LAP_COUNTER_HPP_
 #define LAP_COUNTER_HPP_
 
-#pragma region 'LIBS'
 #include <chrono>
 #include <memory>
 #include <cmath>
@@ -10,14 +9,13 @@
 #include "lart_common/lart_common.h"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/u_int16.hpp"
-#include "lart_msgs/msg/mission.hpp"
 #include "lap_counter/DataHolder.hpp"
-#pragma endregion
 
 class LapCounter : public rclcpp::Node
 {
 public:
     LapCounter(std::shared_ptr<DataHolder> data);
+    void resetLapCount();
 
 private:
     // atributes
@@ -28,7 +26,7 @@ private:
     std::list<cone_data, std::allocator<cone_data>> cone_list;
     float last_distance_known[4];
     float distance_after_lap;
-    LAP_PUBLISHER_TYPE laps;
+    int8_t laps;
 
     // methods
     void topicCallback();
