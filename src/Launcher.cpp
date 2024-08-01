@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     auto lap_counter_node = std::make_shared<LapCounter>(data);
     auto get_cones_node = std::make_shared<GetCones>(data);
     auto get_pulse_node = std::make_shared<GetPulse>(data);
-    auto get_mission_node = std::make_shared<GetMission>(data);
+    auto get_mission_node = std::make_shared<GetMission>(data, lap_counter_node);
 
     rclcpp::executors::MultiThreadedExecutor node_spinner;
     node_spinner.add_node(lap_counter_node);

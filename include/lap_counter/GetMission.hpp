@@ -20,7 +20,7 @@ private:
     std::shared_ptr<DataHolder> data_;
     rclcpp::Subscription<MISSION_SUBSCRIBER_TYPE>::SharedPtr subscriber_;
     std::shared_ptr<LapCounter> lap_counter_node;
-    uint8_t last_mission;
+    mutable uint8_t last_mission;
 
     // methods
     void topicCallback(const MISSION_SUBSCRIBER_TYPE::SharedPtr msg) const;

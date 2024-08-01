@@ -15,20 +15,20 @@ void GetMission::topicCallback(const MISSION_SUBSCRIBER_TYPE::SharedPtr msg) con
 {
     if (msg->mission.data != last_mission)
     {
-        last_mission == msg->mission.data;
+        last_mission = msg->mission.data;
         switch (msg->mission.data)
         {
         case lart_msgs::msg::Mission::ACCELERATION:
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_1_DISTANCE_MIN));
-            lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_1_DISTANCE_MAX));
+            lap_counter_node->set_parameter(rclcpp::Parameter("lap_max", MISSION_1_DISTANCE_MAX));
             break;
         case lart_msgs::msg::Mission::SKIDPAD:
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_2_DISTANCE_MIN));
-            lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_2_DISTANCE_MAX));
+            lap_counter_node->set_parameter(rclcpp::Parameter("lap_max", MISSION_2_DISTANCE_MAX));
             break;
         case lart_msgs::msg::Mission::TRACKDRIVE:
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_3_DISTANCE_MIN));
-            lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_3_DISTANCE_MAX));
+            lap_counter_node->set_parameter(rclcpp::Parameter("lap_max", MISSION_3_DISTANCE_MAX));
         }
         lap_counter_node->resetLapCount();
     }
