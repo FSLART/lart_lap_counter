@@ -54,8 +54,6 @@ void LapCounter::topicCallback()
         goto callback_end;
     }
 
-    RCLCPP_INFO(this->get_logger(), "distance good");
-
     if (this->cone_list.empty())
     {
         cone_list_data.sort(compare_cone);
@@ -85,11 +83,10 @@ void LapCounter::topicCallback()
         float track_width = (float)this->get_parameter("lap_track_width").as_double();
         for (auto &cone : this->cone_list)
         {
-            
-            if (std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) < track_width)
+            if (std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= track_width)
             {
                 in_range++;
-                if (cone.pos.x < 0)
+                if (cone.pos.CAMERA_HORIZONTAL_AXIS < 0)
                 {
                     negative = true;
                 }
@@ -99,6 +96,9 @@ void LapCounter::topicCallback()
                 }
             }
         }
+        // RCLCPP_INFO(this->get_logger(), "posi: %d", positive);
+        // RCLCPP_INFO(this->get_logger(), "nega: %d", negative);
+        // RCLCPP_INFO(this->get_logger(), "in range: %d", in_range);
 
         if (positive && negative && in_range > 1 && distance_after_lap == -1) 
         {
@@ -112,7 +112,11 @@ void LapCounter::topicCallback()
 callback_end:
     auto laps = std_msgs::msg::UInt16();
     
-    laps.data = this->laps;
+    laps.data = this->laps == -1 ? 0 : this->laps;
+    
+    // RCLCPP_INFO(this->get_logger(), "laps: %d", this->laps);
+    // RCLCPP_INFO(this->get_logger(), "after_lap: %f", this->distance_after_lap);
+    // RCLCPP_INFO(this->get_logger(), "distance: %f", data_->getDistance());
 
     publisher_->publish(laps);
 }

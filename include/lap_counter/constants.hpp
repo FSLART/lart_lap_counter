@@ -39,6 +39,7 @@
 #define TRACK_WIDTH 5.0                    // in meters (the track width from one large_orange_cone to another in different sides)
 #define SAFE_LAP_DISTANCE 15.0             // in meters (the distance to wait after adding a lap)
 
+#define CAMERA_HORIZONTAL_AXIS y
 
 // Cones
 typedef struct
