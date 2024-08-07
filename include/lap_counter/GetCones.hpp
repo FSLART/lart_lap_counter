@@ -6,8 +6,7 @@
 #include "lap_counter/constants.hpp"
 #include "lart_common/lart_common.h"
 #include "rclcpp/rclcpp.hpp"
-#include "lart_msgs/msg/cone_array.hpp"
-#include "lart_msgs/msg/cone.hpp"
+#include "eufs_msgs/msg/cone_array_with_covariance.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "lap_counter/DataHolder.hpp"
 
