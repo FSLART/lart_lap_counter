@@ -5,7 +5,7 @@ using namespace std::chrono_literals;
 
 
 LapCounter::LapCounter(std::shared_ptr<DataHolder> data)
-    : Node("count_laps"), data_(data), last_distance_known{0.0, 0.0, 0.0, 0.0}, distance_after_lap(-1)
+    : Node(LAP_PUBLISHER_NAME), data_(data), last_distance_known{0.0, 0.0, 0.0, 0.0}, distance_after_lap(-1)
 {
     // ros args
     this->declare_parameter("lap_min", rclcpp::ParameterValue((float)DEFAULT_DISTANCES_MIN));
@@ -13,7 +13,7 @@ LapCounter::LapCounter(std::shared_ptr<DataHolder> data)
     this->declare_parameter("lap_track_width", rclcpp::ParameterValue((float)TRACK_WIDTH));
 
     laps = -1;
-    publisher_ = this->create_publisher<LAP_PUBLISHER_TYPE>(LAP_PUBLISHER_NAME, 5);
+    publisher_ = this->create_publisher<LAP_PUBLISHER_TYPE>(LAP_PUBLISHER_TOPIC, 5);
     timer_ = this->create_wall_timer(PUBLISHER_TIMER, std::bind(&LapCounter::topicCallback, this));
 }
 
@@ -77,39 +77,39 @@ void LapCounter::topicCallback()
                 }
             }
         }
-
-        bool positive = false, negative = false;
-        short in_range = 0;
-        float track_width = (float)this->get_parameter("lap_track_width").as_double();
-        for (auto &cone : this->cone_list)
-        {
-            if (std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= track_width)
-            {
-                in_range++;
-                if (cone.pos.CAMERA_HORIZONTAL_AXIS < 0)
-                {
-                    negative = true;
-                }
-                else
-                {
-                    positive = true;
-                }
-            }
-        }
-        // RCLCPP_INFO(this->get_logger(), "posi: %d", positive);
-        // RCLCPP_INFO(this->get_logger(), "nega: %d", negative);
-        // RCLCPP_INFO(this->get_logger(), "in range: %d", in_range);
-
-        if (positive && negative && in_range > 1 && distance_after_lap == -1) 
-        {
-            distance_after_lap = data_->getDistance();
-            cone_list_data.clear();
-            data_->setConeList(cone_list_data);
-            laps++;
-        }
     }
 
-callback_end:
+    callback_end:
+
+    bool positive = false, negative = false;
+    short in_range = 0;
+    for (auto &cone : this->cone_list)
+    {
+        if (std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= (float)this->get_parameter("lap_track_width").as_double())
+        {
+            in_range++;
+            if (cone.pos.CAMERA_HORIZONTAL_AXIS < 0)
+            {
+                negative = true;
+            }
+            else
+            {
+                positive = true;
+            }
+        }
+    }
+    // RCLCPP_INFO(this->get_logger(), "posi: %d", positive);
+    // RCLCPP_INFO(this->get_logger(), "nega: %d", negative);
+    // RCLCPP_INFO(this->get_logger(), "in range: %d", in_range);
+
+    if (positive && negative && in_range > 1 && distance_after_lap == -1) 
+    {
+        distance_after_lap = data_->getDistance();
+        cone_list_data.clear();
+        data_->setConeList(cone_list_data);
+        laps++;
+    }
+
     auto laps = std_msgs::msg::UInt16();
     
     laps.data = this->laps == -1 ? 0 : this->laps;

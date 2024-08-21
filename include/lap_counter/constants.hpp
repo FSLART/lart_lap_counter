@@ -31,6 +31,7 @@
 #define PULSE_SUBSCRIBER_NAME "lap_pulse_reader"
 #define MISSION_SUBSCRIBER_NAME "lap_mission_reader"
 
+#define LAP_PUBLISHER_TOPIC "lap_count"
 #define CONE_TOPIC_NAME "/mapping/cones"
 #define PULSE_TOPIC_NAME "/dynamics"
 #define MISSION_TOPIC_NAME "/pc_origin/system_status/critical_as"
