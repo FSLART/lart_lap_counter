@@ -37,7 +37,6 @@ void LapCounter::topicCallback()
         }
         else
         {
-            distance_after_lap += delta_distance;
             goto callback_end;
         }
     }
@@ -80,10 +79,10 @@ void LapCounter::topicCallback()
 
         bool positive = false, negative = false;
         short in_range = 0;
-        float track_width = (float)this->get_parameter("lap_track_width").as_double();
+        float track_width = this->get_parameter("lap_track_width").as_double();
         for (auto &cone : this->cone_list)
         {
-            if (std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= track_width)
+            if ((float) std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= track_width)
             {
                 in_range++;
                 if (cone.pos.CAMERA_HORIZONTAL_AXIS < 0)
@@ -96,9 +95,7 @@ void LapCounter::topicCallback()
                 }
             }
         }
-        // RCLCPP_INFO(this->get_logger(), "posi: %d", positive);
-        // RCLCPP_INFO(this->get_logger(), "nega: %d", negative);
-        // RCLCPP_INFO(this->get_logger(), "in range: %d", in_range);
+        //RCLCPP_INFO(this->get_logger(), "in range: %d", in_range);
 
         if (positive && negative && in_range > 1 && distance_after_lap == -1) 
         {
@@ -114,9 +111,8 @@ callback_end:
     
     laps.data = this->laps == -1 ? 0 : this->laps;
     
-    // RCLCPP_INFO(this->get_logger(), "laps: %d", this->laps);
-    // RCLCPP_INFO(this->get_logger(), "after_lap: %f", this->distance_after_lap);
-    // RCLCPP_INFO(this->get_logger(), "distance: %f", data_->getDistance());
+    //RCLCPP_INFO(this->get_logger(), "laps: %d", this->laps);
+    //RCLCPP_INFO(this->get_logger(), "distance: %f", data_->getDistance());
 
     publisher_->publish(laps);
 }
@@ -131,4 +127,5 @@ bool LapCounter::isSameCone(const cone_data &old_cone, const cone_data &new_cone
 
 void LapCounter::resetLapCount(){
     this->laps = -1;
+    data_->setDistance(0);
 }

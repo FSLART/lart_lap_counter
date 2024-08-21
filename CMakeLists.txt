@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(lart_msgs REQUIRED)
 find_package(eufs_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 # local dependencies
 set(SRC_FILES
@@ -24,7 +25,7 @@ set(SRC_FILES
 
 # executables here
 add_executable(launch ${SRC_FILES})
-ament_target_dependencies(launch rclcpp lart_msgs eufs_msgs std_msgs)
+ament_target_dependencies(launch rclcpp lart_msgs eufs_msgs std_msgs nav_msgs)
 
 # build executable
 install(TARGETS
