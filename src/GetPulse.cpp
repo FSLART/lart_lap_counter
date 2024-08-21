@@ -14,17 +14,14 @@ GetPulse::GetPulse(std::shared_ptr<DataHolder> data) : Node(PULSE_SUBSCRIBER_NAM
 
 void GetPulse::topicCallback(const PULSE_SUBSCRIBER_TYPE::SharedPtr msg) const
 {
-    u_int8_t average_front_wheels_pulse = (msg->pulse_count_lf + msg->pulse_count_rf)/2;
-    float distance_old = data_->getDistance();
-    float distance = PULSE_DIFF_TO_DISTANCE_M(average_front_wheels_pulse - last_pulse) + distance_old;
-    
-    if (distance_old >= distance)
-    {
-        distance = PULSE_DIFF_TO_DISTANCE_M((average_front_wheels_pulse + WHEEL_SPROCKET_PULSES_PER_REVOLUTION - last_pulse)) + distance_old;
-    }
+    float velocity = std::sqrt(msg->twist.twist.linear.x * msg->twist.twist.linear.x + msg->twist.twist.linear.y * msg->twist.twist.linear.y);
+    float time = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9; 
+    float distance = (velocity + last_velocity) * (time - last_time) / 2 + data_->getDistance();
 
-    last_pulse = average_front_wheels_pulse;
-    
+    last_time = time;
+    last_velocity = velocity;
+
     //RCLCPP_INFO(this->get_logger(), "Distance now: %f", distance);
+
     data_->setDistance(distance);
 }
