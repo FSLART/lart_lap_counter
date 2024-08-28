@@ -20,6 +20,7 @@ public:
     // cones
     std::list<cone_data> getConeList();
     void setConeList(std::list<cone_data> data);
+    void clearConeList();
 
 private:
     // atributes

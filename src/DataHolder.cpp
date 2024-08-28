@@ -28,3 +28,9 @@ void DataHolder::setConeList(std::list<cone_data> data)
     std::lock_guard<std::mutex> lock(list_mutex);
     cone_list = std::move(data);
 }
+
+void DataHolder::clearConeList()
+{
+    std::lock_guard<std::mutex> lock(list_mutex);
+    cone_list.clear();
+}

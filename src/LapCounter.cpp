@@ -3,28 +3,36 @@
 
 using namespace std::chrono_literals;
 
+bool compare_cone(const cone_data &first, const cone_data &second)
+{
+    return sqrt(first.pos.x * first.pos.x + first.pos.y * first.pos.y) > sqrt(second.pos.x * second.pos.x + second.pos.y * second.pos.y);
+}
 
 LapCounter::LapCounter(std::shared_ptr<DataHolder> data)
-    : Node("count_laps"), data_(data), last_distance_known{0.0, 0.0, 0.0, 0.0}, distance_after_lap(-1)
+    : Node("count_laps"), data_(data), distance_after_lap(-1), last_callback_distance(0.0), laps(-1)
 {
     // ros args
     this->declare_parameter("lap_min", rclcpp::ParameterValue((float)DEFAULT_DISTANCES_MIN));
     this->declare_parameter("lap_max", rclcpp::ParameterValue((float)DEFAULT_DISTANCES_MAX));
     this->declare_parameter("lap_track_width", rclcpp::ParameterValue((float)TRACK_WIDTH));
 
-    laps = -1;
     publisher_ = this->create_publisher<LAP_PUBLISHER_TYPE>(LAP_PUBLISHER_NAME, 5);
     timer_ = this->create_wall_timer(PUBLISHER_TIMER, std::bind(&LapCounter::topicCallback, this));
 }
 
-
-
-bool compare_cone(const cone_data &first, const cone_data &second)
+void LapCounter::topicCallback()
 {
-    return std::sqrt(first.pos.x * first.pos.x + first.pos.y * first.pos.y) > std::sqrt(second.pos.x * second.pos.x + second.pos.y * second.pos.y);
+    verifyLap();
+
+    auto laps = std_msgs::msg::UInt16();
+    laps.data = this->laps == -1 ? 0 : this->laps;
+
+    //RCLCPP_INFO(this->get_logger(), "laps: %d", this->laps);
+
+    publisher_->publish(laps);
 }
 
-void LapCounter::topicCallback()
+void LapCounter::verifyLap()
 {
 
     std::list<cone_data> cone_list_data = data_->getConeList();
@@ -37,95 +45,91 @@ void LapCounter::topicCallback()
         }
         else
         {
-            goto callback_end;
+            return;
         }
     }
 
-    // Empty list
-    if (cone_list_data.empty())
-    {
-        goto callback_end;
-    }
-
+    // Empty list and
     // Verify distance
-    if (data_->getDistance() < this->get_parameter("lap_min").as_double() * (laps + 1) || data_->getDistance() > this->get_parameter("lap_max").as_double() * (laps + 1))
+    if (cone_list_data.empty() || data_->getDistance() < this->get_parameter("lap_min").as_double() * (laps + 1) - 5 || data_->getDistance() > this->get_parameter("lap_max").as_double() * (laps + 1) + 5)
     {
-        goto callback_end;
+        return;
     }
 
-    if (this->cone_list.empty())
+    if (this->cone_list.empty() || this->cone_list.size() < 4)
     {
         cone_list_data.sort(compare_cone);
-        auto iterator = cone_list_data.begin();
-        for (short i = 0; i < 4 || iterator != cone_list_data.end(); i++, iterator++)
+        int i = -1;
+        for (const auto &cone : cone_list_data)
         {
-            this->cone_list.push_back(*iterator);
+            i++;
+            if (i < (int) this->cone_list.size())
+                continue;
+            if (i > 3)
+                break;
+            this->cone_list.push_front(cone);
         }
     }
     else
     {
-        for (const auto &node : cone_list)
+        float distance_now = data_->getDistance();
+        for (auto &old_cone : this->cone_list)
         {
-            short i = 0;
-            for (auto iterator = cone_list_data.begin(); iterator != cone_list_data.end(); iterator++, i++)
+            for (const auto &new_cone : cone_list_data)
             {
-                if (isSameCone(*iterator, node, i))
+                if (isSameCone(old_cone, new_cone, distance_now))
                 {
-                    *iterator = node;
+                    old_cone = new_cone;
                     break;
                 }
             }
         }
+        last_callback_distance = distance_now;
 
-        bool positive = false, negative = false;
-        short in_range = 0;
-        float track_width = this->get_parameter("lap_track_width").as_double();
-        for (auto &cone : this->cone_list)
+        while (this->cone_list.size() > 4)
         {
-            if ((float) std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= track_width)
-            {
-                in_range++;
-                if (cone.pos.CAMERA_HORIZONTAL_AXIS < 0)
-                {
-                    negative = true;
-                }
-                else
-                {
-                    positive = true;
-                }
-            }
-        }
-        //RCLCPP_INFO(this->get_logger(), "in range: %d", in_range);
-
-        if (positive && negative && in_range > 1 && distance_after_lap == -1) 
-        {
-            distance_after_lap = data_->getDistance();
-            cone_list_data.clear();
-            data_->setConeList(cone_list_data);
-            laps++;
+            cone_list.pop_back();
         }
     }
 
-callback_end:
-    auto laps = std_msgs::msg::UInt16();
-    
-    laps.data = this->laps == -1 ? 0 : this->laps;
-    
-    //RCLCPP_INFO(this->get_logger(), "laps: %d", this->laps);
-    //RCLCPP_INFO(this->get_logger(), "distance: %f", data_->getDistance());
+    bool positive = false, negative = false;
+    short in_range = 0;
+    float track_width = this->get_parameter("lap_track_width").as_double();
+    for (auto &cone : this->cone_list)
+    {
 
-    publisher_->publish(laps);
+        if ((float)std::sqrt(cone.pos.x * cone.pos.x + cone.pos.y * cone.pos.y) <= track_width)
+        {
+            in_range++;
+            if (cone.pos.CAMERA_HORIZONTAL_AXIS < 0)
+            {
+                negative = true;
+            }
+            else
+            {
+                positive = true;
+            }
+        }
+    }
+
+    if (positive && negative && in_range > 1 && distance_after_lap == -1)
+    {
+        distance_after_lap = data_->getDistance();
+        data_->clearConeList();
+        cone_list.clear();
+        laps++;
+    }
 }
 
-bool LapCounter::isSameCone(const cone_data &old_cone, const cone_data &new_cone, short index)
+bool LapCounter::isSameCone(const cone_data &old_cone, const cone_data &new_cone, float new_distance)
 {
+    float distance = sqrt(pow(new_cone.pos.x - old_cone.pos.x, 2) + pow(new_cone.pos.y - old_cone.pos.y, 2));
 
-    float deltaConeDistance = std::sqrt(std::pow(new_cone.pos.x - old_cone.pos.x, 2) + std::pow(new_cone.pos.y - old_cone.pos.y, 2));
-
-    return std::fabs(deltaConeDistance - this->last_distance_known[index]) < ACCEPTABLE_CONE_DISTANCE_ERROR;
+    return fabs(new_distance - last_callback_distance - distance) < ACCEPTABLE_CONE_DISTANCE_ERROR;
 }
 
-void LapCounter::resetLapCount(){
+void LapCounter::resetLapCount()
+{
     this->laps = -1;
     data_->setDistance(0);
 }
