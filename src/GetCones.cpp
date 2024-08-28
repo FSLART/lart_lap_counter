@@ -16,14 +16,18 @@ void GetCones::topicCallback(const CONE_SUBSCRIBER_TYPE::SharedPtr msg) const
 {
     std::list<cone_data> list;
     
-    for (const auto &msg_cone : msg->big_orange_cones)
+    for (const auto &msg_cone : msg->cones)
     {
+        if (msg_cone.class_type.data != CONE_LARGE_ORANGE_TYPE)
+        {
+            continue;
+        }
+
         // Convert message data
         cone_data convertedData;
-        convertedData.pos.x  = msg_cone.point.x;
-        convertedData.pos.y = msg_cone.point.y;
+        convertedData.pos.x  = msg_cone.position.x;
+        convertedData.pos.y = msg_cone.position.y;
 
-        
         list.emplace_back(convertedData);
     }
     

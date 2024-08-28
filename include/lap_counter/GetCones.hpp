@@ -6,8 +6,7 @@
 #include "lap_counter/constants.hpp"
 #include "lart_common/lart_common.h"
 #include "rclcpp/rclcpp.hpp"
-#include "eufs_msgs/msg/cone_array_with_covariance.hpp"
-#include "std_msgs/msg/int32.hpp"
+#include "lart_msgs/msg/cone_array.hpp"
 #include "lap_counter/DataHolder.hpp"
 
 class GetCones : public rclcpp::Node

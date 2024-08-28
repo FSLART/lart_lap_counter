@@ -22,8 +22,8 @@
 // Publishers and subscribers
 #define PUBLISHER_TIMER 100ms                           // frequency of the publisher
 #define LAP_PUBLISHER_TYPE std_msgs::msg::UInt16        // message type of the lap counter publisher
-#define CONE_SUBSCRIBER_TYPE eufs_msgs::msg::ConeArrayWithCovariance  // message type of the cone topic subscriber
-#define PULSE_SUBSCRIBER_TYPE nav_msgs::msg::Odometry  // message type of the pulse topic subscriber
+#define CONE_SUBSCRIBER_TYPE lart_msgs::msg::ConeArray  // message type of the cone topic subscriber
+#define PULSE_SUBSCRIBER_TYPE lart_msgs::msg::Dynamics  // message type of the pulse topic subscriber
 #define MISSION_SUBSCRIBER_TYPE lart_msgs::msg::ASStatus // message type of the mission topic subscriber
 
 #define LAP_PUBLISHER_NAME "lap_count"
