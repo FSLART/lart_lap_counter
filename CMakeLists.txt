@@ -22,6 +22,11 @@ set(SRC_FILES
     src/Launcher.cpp
 )
 
+include_directories(
+  include
+  ${CMAKE_SOURCE_DIR}/../lart_common
+)
+
 # executables here
 add_executable(launch ${SRC_FILES})
 ament_target_dependencies(launch rclcpp lart_msgs std_msgs nav_msgs)

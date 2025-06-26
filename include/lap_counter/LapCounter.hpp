@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "lap_counter/constants.hpp"
-#include "lart_common/lart_common.h"
+#include "lart_common.h"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/u_int16.hpp"
 #include "lap_counter/DataHolder.hpp"
