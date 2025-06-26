@@ -5,8 +5,8 @@
 
 /* Default distances in meters */
 // default minimum and maximum distance to consider a lap
-#define DEFAULT_DISTANCES_MIN 80.0
-#define DEFAULT_DISTANCES_MAX 110.0
+#define DEFAULT_DISTANCES_MIN 30.0
+#define DEFAULT_DISTANCES_MAX 210.0
 
 /* Default distances for missions in meters */
 // default minimum and maximum distance to consider a lap, in mission 1
@@ -20,10 +20,10 @@
 #define MISSION_3_DISTANCE_MAX 100.0
 
 // Publishers and subscribers
-#define PUBLISHER_TIMER 100ms                           // frequency of the publisher
-#define LAP_PUBLISHER_TYPE std_msgs::msg::UInt16        // message type of the lap counter publisher
-#define CONE_SUBSCRIBER_TYPE lart_msgs::msg::ConeArray  // message type of the cone topic subscriber
-#define PULSE_SUBSCRIBER_TYPE lart_msgs::msg::Dynamics  // message type of the pulse topic subscriber
+#define PUBLISHER_TIMER 100ms                            // frequency of the publisher
+#define LAP_PUBLISHER_TYPE std_msgs::msg::UInt16         // message type of the lap counter publisher
+#define CONE_SUBSCRIBER_TYPE lart_msgs::msg::ConeArray   // message type of the cone topic subscriber
+#define PULSE_SUBSCRIBER_TYPE lart_msgs::msg::Dynamics   // message type of the pulse topic subscriber
 #define MISSION_SUBSCRIBER_TYPE lart_msgs::msg::ASStatus // message type of the mission topic subscriber
 
 #define LAP_PUBLISHER_NAME "lap_count"
@@ -33,11 +33,11 @@
 
 #define LAP_PUBLISHER_TOPIC "/lap_count"
 #define CONE_TOPIC_NAME "/mapping/cones"
-#define PULSE_TOPIC_NAME "/dynamics"
+#define PULSE_TOPIC_NAME "/acu_origin/dynamics"
 #define MISSION_TOPIC_NAME "/pc_origin/system_status/critical_as"
 
-#define ACCEPTABLE_CONE_DISTANCE_ERROR 2.0 // in meters (the acceptable error when calculating if a cone is the same one in the past frame)
-#define TRACK_WIDTH 5.0                    // in meters (the track width from one large_orange_cone to another in different sides)
+#define ACCEPTABLE_CONE_DISTANCE_ERROR 1.5 // in meters (the acceptable error when calculating if a cone is the same one in the past frame)
+#define TRACK_WIDTH 3.0                    // in meters (the track width from one large_orange_cone to another in different sides)
 #define SAFE_LAP_DISTANCE 15.0             // in meters (the distance to wait after adding a lap)
 
 #define CAMERA_HORIZONTAL_AXIS y

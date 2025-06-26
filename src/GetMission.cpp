@@ -26,10 +26,16 @@ void GetMission::topicCallback(const MISSION_SUBSCRIBER_TYPE::SharedPtr msg) con
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_2_DISTANCE_MIN));
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_max", MISSION_2_DISTANCE_MAX));
             break;
-        case lart_msgs::msg::Mission::TRACKDRIVE:
+        case lart_msgs::msg::Mission::TRACKDRIVE :
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_3_DISTANCE_MIN));
             lap_counter_node->set_parameter(rclcpp::Parameter("lap_max", MISSION_3_DISTANCE_MAX));
+            break;
+        case lart_msgs::msg::Mission::AUTOCROSS:
+            lap_counter_node->set_parameter(rclcpp::Parameter("lap_min", MISSION_3_DISTANCE_MIN));
+            lap_counter_node->set_parameter(rclcpp::Parameter("lap_max", MISSION_3_DISTANCE_MAX));
+            break;
         }
+        
         lap_counter_node->resetLapCount();
     }
 }

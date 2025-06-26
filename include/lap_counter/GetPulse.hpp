@@ -19,7 +19,7 @@ private:
     std::shared_ptr<DataHolder> data_;
     rclcpp::Subscription<PULSE_SUBSCRIBER_TYPE>::SharedPtr subscriber_;
     mutable float last_velocity;
-    mutable float last_time;
+    mutable double last_time;
 
     // methods
     void topicCallback(const PULSE_SUBSCRIBER_TYPE::SharedPtr msg) const;
