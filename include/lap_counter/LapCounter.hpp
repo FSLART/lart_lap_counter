@@ -5,6 +5,7 @@
 #include <memory>
 #include <cmath>
 
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "lap_counter/constants.hpp"
 #include "lart_common.h"
 #include "rclcpp/rclcpp.hpp"
@@ -21,6 +22,9 @@ private:
     // atributes
     const std::shared_ptr<DataHolder> data_;
 
+    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr ekf_subscriber_;
+    geometry_msgs::msg::PoseStamped last_pose_;
+
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<LAP_PUBLISHER_TYPE>::SharedPtr publisher_;
     std::list<cone_data, std::allocator<cone_data>> cone_list;
@@ -31,6 +35,7 @@ private:
     // methods
     void topicCallback();
     void verifyLap();
+    void poseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
     bool isSameCone(const cone_data &old_cone, const cone_data &new_cone, float new_distance);
 };
 

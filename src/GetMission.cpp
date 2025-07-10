@@ -16,6 +16,7 @@ void GetMission::topicCallback(const MISSION_SUBSCRIBER_TYPE::SharedPtr msg) con
     if (msg->mission.data != last_mission)
     {
         last_mission = msg->mission.data;
+        data_->setMission(msg->mission.data);
         switch (msg->mission.data)
         {
         case lart_msgs::msg::Mission::ACCELERATION:

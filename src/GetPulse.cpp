@@ -29,7 +29,7 @@ void GetPulse::topicCallback(const PULSE_SUBSCRIBER_TYPE::SharedPtr msg) const
     last_time = time;
     last_velocity = velocity;
 
-    RCLCPP_INFO(this->get_logger(), "Distance now: %f", distance);
+    //RCLCPP_INFO(this->get_logger(), "Distance now: %f", distance);
 
     data_->setDistance(distance);
 }

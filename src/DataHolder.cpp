@@ -29,6 +29,18 @@ void DataHolder::setConeList(std::list<cone_data> data)
     cone_list = std::move(data);
 }
 
+void DataHolder::setMission(u_int8_t mission)
+{
+    std::lock_guard<std::mutex> lock(mission_mutex);
+    mission_type = mission;
+}
+
+u_int8_t DataHolder::getMission()
+{
+    std::lock_guard<std::mutex> lock(mission_mutex);
+    return mission_type;
+}
+
 void DataHolder::clearConeList()
 {
     std::lock_guard<std::mutex> lock(list_mutex);

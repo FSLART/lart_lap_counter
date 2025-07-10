@@ -19,6 +19,8 @@ public:
 
     // cones
     std::list<cone_data> getConeList();
+    void setMission(u_int8_t mission);
+    u_int8_t getMission();
     void setConeList(std::list<cone_data> data);
     void clearConeList();
 
