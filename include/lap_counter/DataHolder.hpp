@@ -1,14 +1,12 @@
 #ifndef DATA_HOLDER_HPP_
 #define DATA_HOLDER_HPP_
 
-#pragma region 'LIBS'
 #include <iostream>
 #include <list>
 #include <mutex>
 #include <memory>
 
 #include "lap_counter/constants.hpp"
-#pragma endregion
 
 class DataHolder
 {
@@ -21,11 +19,10 @@ public:
 
     // cones
     std::list<cone_data> getConeList();
+    void setMission(u_int8_t mission);
+    u_int8_t getMission();
     void setConeList(std::list<cone_data> data);
-
-    // mission
-    u_int8_t getMissionType();
-    void setMissionType(u_int8_t data);
+    void clearConeList();
 
 private:
     // atributes

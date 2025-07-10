@@ -10,19 +10,27 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(lart_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 # local dependencies
 set(SRC_FILES
     src/DataHolder.cpp
     src/GetCones.cpp
     src/GetPulse.cpp
+    src/GetMission.cpp
     src/LapCounter.cpp
     src/Launcher.cpp
 )
 
+include_directories(
+  include
+  ${CMAKE_SOURCE_DIR}/../lart_common
+)
+
 # executables here
 add_executable(launch ${SRC_FILES})
-ament_target_dependencies(launch rclcpp lart_msgs std_msgs)
+ament_target_dependencies(launch rclcpp lart_msgs std_msgs nav_msgs geometry_msgs)
 
 # build executable
 install(TARGETS
